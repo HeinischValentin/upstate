@@ -1,0 +1,39 @@
+[project]
+name = "upstate"
+version = "0.1.0"
+description = "A cli-tool that checks your self-hosted systems for updates."
+readme = "../README.md"
+authors = [
+    { name = "Valentin Heinisch" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "truenas-api-client",
+    "pyyaml>=6.0",
+    "python-dotenv>=1.0",
+    "fastapi>=0.100.0",
+    "uvicorn>=0.20.0",
+]
+
+[project.scripts]
+upstate = "upstate.__main__:main"
+upstate-api = "upstate.server:main"
+
+[build-system]
+requires = ["uv_build>=0.11.8,<0.12"]
+build-backend = "uv_build"
+
+[tool.uv.sources]
+truenas-api-client = { git = "https://github.com/truenas/api_client.git", rev = "TS-25.04.2.6" }
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.7",
+    "coverage>=7.13.5"
+]
+
+[tool.ruff]
+target-version = "py312"
+
+[tool.ruff.lint]
+extend-select = ["I"]

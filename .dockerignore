@@ -1,0 +1,14 @@
+.git
+.github
+.claude
+frontend
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/.venv
+backend/.ruff_cache
+backend/.mypy_cache
+backend/tests
+.env
+.env.*
+backend/TODO.md

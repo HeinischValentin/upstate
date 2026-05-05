@@ -1,0 +1,19 @@
+<svg width="120" height="140" viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg">
+  <title>upstate logo</title>
+  <desc>Upstate logo icon: a shield with an upward arrow above a heartbeat pulse line.</desc>
+
+  <!-- Shield base -->
+  <path d="M60 0 L120 22 L120 78 Q120 118 60 140 Q0 118 0 78 L0 22 Z" fill="#FFFFFF"/>
+  <path d="M60 0 L120 22 L120 78 Q120 118 60 140 Q0 118 0 78 L0 22 Z" fill="none" stroke="#4F6EF7" stroke-width="2.5"/>
+
+  <!-- Upward arrow -->
+  <line x1="60" y1="75" x2="60" y2="30" stroke="#4F6EF7" stroke-width="3.5" stroke-linecap="round"/>
+  <polyline points="44,52 60,30 76,52" fill="none" stroke="#4F6EF7" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Divider -->
+  <line x1="22" y1="88" x2="98" y2="88" stroke="#4F6EF7" stroke-width="1" stroke-opacity="0.25"/>
+
+  <!-- Pulse line -->
+  <polyline points="16,110 30,110 38,95 47,124 56,103 64,110 76,110 84,97 92,110 106,110"
+    fill="none" stroke="#4F6EF7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.85"/>
+</svg>

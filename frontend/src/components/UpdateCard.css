@@ -1,0 +1,118 @@
+.update-card {
+  background: #1e1e2e;
+  border: 1px solid #313244;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card-ok {
+  border-color: #a6e3a1;
+}
+
+.card-updates {
+  border-color: #f9e2af;
+}
+
+.card-error {
+  border-color: #f38ba8;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #cdd6f4;
+  text-transform: capitalize;
+}
+
+.badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.badge-ok {
+  background: #a6e3a120;
+  color: #a6e3a1;
+}
+
+.badge-updates {
+  background: #f9e2af20;
+  color: #f9e2af;
+}
+
+.badge-error {
+  background: #f38ba820;
+  color: #f38ba8;
+}
+
+.card-ok-icon {
+  font-size: 3rem;
+  line-height: 1;
+  color: #a6e3a1;
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.card-error-message {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #f38ba8;
+  font-family: monospace;
+  word-break: break-word;
+}
+
+.update-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.update-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.9rem;
+}
+
+.update-name {
+  color: #cdd6f4;
+  font-weight: 500;
+}
+
+.update-versions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+
+.version-current {
+  color: #6c7086;
+}
+
+.version-arrow {
+  color: #f9e2af;
+}
+
+.version-new {
+  color: #a6e3a1;
+  font-weight: 600;
+}
