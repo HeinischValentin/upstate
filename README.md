@@ -26,10 +26,6 @@ It supports various technologies and offers lightweight configuration.
 upstate path/to/config.yaml
 ```
 
-> [!TIP]
-> If you want to quickly try it out, you can use [uvx](https://github.com/astral-sh/uv):
-> `uvx --from git+https://github.com/HeinischValentin/upstate upstate config.yml`
-
 **API server** — serves a REST API:
 
 ```bash
