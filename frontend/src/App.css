@@ -86,3 +86,8 @@
 .status-message.error {
   color: #f38ba8;
 }
+
+.status-message.example-notice {
+  color: #fab387;
+  padding-top: 0;
+}

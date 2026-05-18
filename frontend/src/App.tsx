@@ -3,6 +3,24 @@ import type { CheckerStatus } from './types'
 import { UpdateCard } from './components/UpdateCard'
 import './App.css'
 
+const EXAMPLE_CHECKERS: CheckerStatus[] = [
+  {
+    type: 'Docker',
+    update_available: true,
+    updates: [
+      { name: 'nginx', current_version: '1.25.3', new_version: '1.27.0' },
+      { name: 'postgres', current_version: 'sha256:83f2ad12681a', new_version: 'sha256:8cb20d16e01a' },
+    ],
+    error: null,
+  },
+  {
+    type: 'Home Assistant',
+    update_available: false,
+    updates: [],
+    error: null,
+  },
+]
+
 async function fetchCheckerData(): Promise<{ results: CheckerStatus[]; error: string | null }> {
   let types: string[]
   try {
@@ -89,9 +107,19 @@ export default function App() {
         )}
 
         {error && (
-          <div className="status-message error">
-            Could not reach the API: {error}
-          </div>
+          <>
+            <div className="status-message error">
+              Could not reach the API: {error}
+            </div>
+            <div className="status-message example-notice">
+              Showing example data.
+            </div>
+            <div className="card-grid">
+              {EXAMPLE_CHECKERS.map((c) => (
+                <UpdateCard key={c.type} checker={c} />
+              ))}
+            </div>
+          </>
         )}
 
         {!error && checkers.length > 0 && (
