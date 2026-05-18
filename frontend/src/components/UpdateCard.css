@@ -85,7 +85,7 @@
 
 .update-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
   font-size: 0.9rem;
@@ -102,6 +102,9 @@
   gap: 0.4rem;
   font-family: monospace;
   font-size: 0.85rem;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 .version-current {
