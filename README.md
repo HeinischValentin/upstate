@@ -136,6 +136,14 @@ To fetch information about running containers, the tool has to access the docker
 While upstate won't do anything harmful, giving anyone access to the socket is technically a risk.
 See the [docker docs](https://docs.docker.com/engine/daemon/remote-access/) for more information.
 
+## Roadmap
+
+Just some ideas for the future:
+
+- Parallelization of backend tasks
+- Notifications
+- Exclusion rules
+
 ## Development
 
 ### Backend
