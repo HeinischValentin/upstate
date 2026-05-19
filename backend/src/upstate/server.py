@@ -9,6 +9,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+from .demo import DemoChecker
 from .interface import (
     AuthenticationError,
     Checker,
@@ -75,7 +76,9 @@ def create_app(checkers: dict[str, Checker]) -> FastAPI:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run the upstate API server.")
-    parser.add_argument("config", type=Path, help="Path to YAML configuration file.")
+    parser.add_argument(
+        "config", type=Path, help="Path to YAML configuration file.", nargs="?"
+    )
     parser.add_argument(
         "--host", default="0.0.0.0", help="Bind host (default: 0.0.0.0)."
     )
@@ -92,14 +95,24 @@ def main() -> None:
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
         help="Log level (default: INFO).",
     )
+    parser.add_argument("--demo", action="store_true", help="Activate demo mode.")
     args = parser.parse_args()
 
     logging.basicConfig(level=args.log_level)
 
-    checkers_list = load_checkers_from_yaml(args.config)
-    checkers: dict[str, Checker] = {
-        c._checker_type or type(c).__name__: c for c in checkers_list
-    }
+    if args.demo:
+        demo_checker1 = DemoChecker()
+        demo_checker2 = DemoChecker()
+        demo_checker2.timeout = 4
+        checkers = {"demo1": demo_checker1, "demo2": demo_checker2}
+    else:
+        if not args.config:
+            logger.error("Missing path to config file!")
+            return
+        checkers_list = load_checkers_from_yaml(args.config)
+        checkers: dict[str, Checker] = {
+            c._checker_type or type(c).__name__: c for c in checkers_list
+        }
     app = create_app(checkers)
 
     uvicorn_kwargs: dict[str, Any] = {
