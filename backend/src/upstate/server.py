@@ -2,7 +2,7 @@ import argparse
 import asyncio
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, Sequence
 
 import uvicorn
 from fastapi import FastAPI, HTTPException
@@ -75,6 +75,34 @@ def create_app(checkers: dict[str, Checker]) -> FastAPI:
 
 
 def main() -> None:
+    args = parse_args()
+    logging.basicConfig(level=args.log_level)
+
+    if args.demo:
+        demo_checker1 = DemoChecker()
+        demo_checker2 = DemoChecker()
+        demo_checker2.timeout = 4
+        checkers_list = [demo_checker1, demo_checker2]
+    else:
+        if not args.config:
+            logger.error("Missing path to config file!")
+            return
+        checkers_list = load_checkers_from_yaml(args.config)
+    app = create_app(checker_list_to_dict(checkers_list))
+
+    uvicorn_kwargs: dict[str, Any] = {
+        "host": args.host,
+        "port": args.port,
+        "log_level": args.log_level.lower(),
+    }
+    if args.ssl_certfile:
+        uvicorn_kwargs["ssl_certfile"] = args.ssl_certfile
+        uvicorn_kwargs["ssl_keyfile"] = args.ssl_keyfile
+
+    uvicorn.run(app, **uvicorn_kwargs)
+
+
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run the upstate API server.")
     parser.add_argument(
         "config", type=Path, help="Path to YAML configuration file.", nargs="?"
@@ -96,32 +124,19 @@ def main() -> None:
         help="Log level (default: INFO).",
     )
     parser.add_argument("--demo", action="store_true", help="Activate demo mode.")
-    args = parser.parse_args()
+    return parser.parse_args()
 
-    logging.basicConfig(level=args.log_level)
 
-    if args.demo:
-        demo_checker1 = DemoChecker()
-        demo_checker2 = DemoChecker()
-        demo_checker2.timeout = 4
-        checkers = {"demo1": demo_checker1, "demo2": demo_checker2}
-    else:
-        if not args.config:
-            logger.error("Missing path to config file!")
-            return
-        checkers_list = load_checkers_from_yaml(args.config)
-        checkers: dict[str, Checker] = {
-            c._checker_type or type(c).__name__: c for c in checkers_list
-        }
-    app = create_app(checkers)
-
-    uvicorn_kwargs: dict[str, Any] = {
-        "host": args.host,
-        "port": args.port,
-        "log_level": args.log_level.lower(),
-    }
-    if args.ssl_certfile:
-        uvicorn_kwargs["ssl_certfile"] = args.ssl_certfile
-        uvicorn_kwargs["ssl_keyfile"] = args.ssl_keyfile
-
-    uvicorn.run(app, **uvicorn_kwargs)
+def checker_list_to_dict(checkers: Sequence[Checker]) -> dict[str, Checker]:
+    """Turn list of checkers into a dict indexed by checker type and incremented index"""
+    checker_count = {}
+    output = {}
+    for checker in checkers:
+        name = checker._checker_type
+        if index := checker_count.get(checker._checker_type):
+            name += f"_{index}"
+            checker_count[checker._checker_type] += 1
+        else:
+            checker_count[checker._checker_type] = 1
+        output[name] = checker
+    return output
