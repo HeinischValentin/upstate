@@ -92,7 +92,9 @@ export default function App() {
   }
 
   useEffect(() => {
-    loadCheckers()
+    (async () => {
+      await loadCheckers()
+    })()
   }, [])
 
   return (
