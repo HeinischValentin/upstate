@@ -11,6 +11,11 @@ Keeping track of your systems made easy.
 `upstate` is a command-line tool that checks for pending updates on your systems and reports them in a human-friendly format.
 It supports various technologies and offers lightweight configuration.
 
+<p align="center">
+  <img src=".github/assets/screen.png" alt="Screenshot of the Upstate frontend">
+  <img src=".github/assets/screen-cli.png" alt="Screenshot of the Upstate cli">
+</p>
+
 ## Currently supported systems
 
 - `truenas`: checks for pending TrueNAS system updates.
