@@ -140,7 +140,7 @@ See the [docker docs](https://docs.docker.com/engine/daemon/remote-access/) for 
 
 Just some ideas for the future:
 
-- Parallelization of backend tasks
+- Authentication against private docker registries
 - Notifications
 - Exclusion rules
 
