@@ -82,6 +82,7 @@ def main() -> None:
         demo_checker1 = DemoChecker()
         demo_checker2 = DemoChecker()
         demo_checker2.timeout = 4
+        demo_checker2.updates_available = False
         checkers_list = [demo_checker1, demo_checker2]
     else:
         if not args.config:
