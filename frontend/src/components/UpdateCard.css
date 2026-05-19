@@ -20,6 +20,47 @@
   border-color: #f38ba8;
 }
 
+.card-loading {
+  border-color: #45475a;
+}
+
+.skeleton {
+  display: block;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    #313244 0%,
+    #45475a 50%,
+    #313244 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton-badge {
+  width: 4.5rem;
+  height: 1.25rem;
+  border-radius: 999px;
+}
+
+.skeleton-line {
+  height: 0.9rem;
+  width: 100%;
+}
+
+.skeleton-line-short {
+  width: 60%;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 .card-header {
   display: flex;
   align-items: center;
