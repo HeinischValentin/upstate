@@ -138,5 +138,6 @@ def checker_list_to_dict(checkers: Sequence[Checker]) -> dict[str, Checker]:
             checker_count[checker._checker_type] += 1
         else:
             checker_count[checker._checker_type] = 1
+        logger.debug(f"Adding checker {name}")
         output[name] = checker
     return output

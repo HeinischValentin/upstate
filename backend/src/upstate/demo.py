@@ -10,6 +10,8 @@ from .interface import (
 
 
 class DemoChecker(Checker):
+    _checker_type = "demo"
+
     def __init__(self) -> None:
         self.timeout = 2
 
