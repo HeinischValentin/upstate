@@ -3,6 +3,7 @@ import logging
 import sys
 from pathlib import Path
 
+from .demo import DemoChecker
 from .interface import (
     AuthenticationError,
     CheckerConnectionError,
@@ -14,23 +15,35 @@ from .loader import load_checkers_from_yaml
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Check for available updates.")
-    parser.add_argument("config", type=Path, help="Path to YAML configuration file.")
+    parser.add_argument(
+        "config", type=Path, help="Path to YAML configuration file.", nargs="?"
+    )
     parser.add_argument(
         "--log-level",
         default="WARNING",
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
         help="Log level (default: WARNING).",
     )
+    parser.add_argument("--demo", action="store_true", help="Activate demo mode.")
     args = parser.parse_args()
 
     logging.basicConfig(level=args.log_level)
     logger = logging.getLogger("upstate")
 
-    try:
-        checkers = load_checkers_from_yaml(args.config)
-    except (ConfigurationError, FileNotFoundError) as e:
-        logger.error("%s", e)
-        sys.exit(1)
+    if args.demo:
+        demo_checker1 = DemoChecker()
+        demo_checker2 = DemoChecker()
+        demo_checker2.timeout = 4
+        checkers = [demo_checker1, demo_checker2]
+    else:
+        if not args.config:
+            logger.error("Missing path to config file!")
+            return
+        try:
+            checkers = load_checkers_from_yaml(args.config)
+        except (ConfigurationError, FileNotFoundError) as e:
+            logger.error("%s", e)
+            sys.exit(1)
 
     for checker in checkers:
         label = checker._checker_type or type(checker).__name__

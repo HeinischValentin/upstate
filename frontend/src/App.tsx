@@ -21,65 +21,80 @@ const EXAMPLE_CHECKERS: CheckerStatus[] = [
   },
 ]
 
-async function fetchCheckerData(): Promise<{ results: CheckerStatus[]; error: string | null }> {
-  let types: string[]
+type CheckerItem = {
+  type: string
+  status: CheckerStatus | null
+}
+
+async function fetchCheckerTypes(): Promise<string[]> {
+  const res = await fetch('/checkers')
+  if (!res.ok) throw new Error(`Server returned ${res.status}`)
+  return await res.json() as string[]
+}
+
+async function fetchChecker(type: string): Promise<CheckerStatus> {
   try {
-    const res = await fetch('/checkers')
-    if (!res.ok) throw new Error(`Server returned ${res.status}`)
-    types = await res.json() as string[]
+    const res = await fetch(`/checkers/${encodeURIComponent(type)}`)
+    if (res.ok) return await res.json() as CheckerStatus
+    let detail = `HTTP ${res.status}`
+    try {
+      const body = await res.json()
+      if (typeof body?.detail === 'string') detail = body.detail
+    } catch { /* ignore */ }
+    return { type, update_available: false, updates: [], error: detail }
   } catch (e) {
-    return { results: [], error: e instanceof Error ? e.message : 'Failed to fetch checker list' }
+    return {
+      type,
+      update_available: false,
+      updates: [],
+      error: e instanceof Error ? e.message : 'Failed to fetch',
+    }
   }
-
-  const results = await Promise.all(
-    types.map(async (type): Promise<CheckerStatus> => {
-      try {
-        const res = await fetch(`/checkers/${encodeURIComponent(type)}`)
-        if (res.ok) return await res.json() as CheckerStatus
-        let detail = `HTTP ${res.status}`
-        try {
-          const body = await res.json()
-          if (typeof body?.detail === 'string') detail = body.detail
-        } catch { /* ignore */ }
-        return { type, update_available: false, updates: [], error: detail }
-      } catch (e) {
-        return {
-          type,
-          update_available: false,
-          updates: [],
-          error: e instanceof Error ? e.message : 'Failed to fetch',
-        }
-      }
-    })
-  )
-
-  return { results, error: null }
 }
 
 export default function App() {
-  const [checkers, setCheckers] = useState<CheckerStatus[]>([])
-  const [loading, setLoading] = useState(true)
+  const [checkers, setCheckers] = useState<CheckerItem[]>([])
+  const [loadingList, setLoadingList] = useState(true)
+  const [refreshing, setRefreshing] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
 
-  async function fetchUpdates() {
-    setLoading(true)
+  async function loadCheckers() {
+    setLoadingList(true)
+    setRefreshing(true)
     setError(null)
     setCheckers([])
-    const { results, error } = await fetchCheckerData()
-    setCheckers(results)
-    setLastRefresh(new Date())
-    setError(error)
-    setLoading(false)
+
+    let types: string[]
+    try {
+      types = await fetchCheckerTypes()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to fetch checker list')
+      setLoadingList(false)
+      setRefreshing(false)
+      return
+    }
+
+    setCheckers(types.map((type) => ({ type, status: null })))
+    setLoadingList(false)
+
+    const fetches = types.map((type) =>
+      fetchChecker(type).then((status) => {
+        setCheckers((prev) =>
+          prev.map((c) => (c.type === type ? { ...c, status } : c))
+        )
+      })
+    )
+    Promise.all(fetches).then(() => {
+      setLastRefresh(new Date())
+      setRefreshing(false)
+    })
   }
 
   useEffect(() => {
-    fetchCheckerData().then(({ results, error }) => {
-      setCheckers(results)
-      setLastRefresh(new Date())
-      setError(error)
-      setLoading(false)
-    })
+    (async () => {
+      await loadCheckers()
+    })()
   }, [])
 
   return (
@@ -95,14 +110,14 @@ export default function App() {
               Last refreshed: {lastRefresh.toLocaleTimeString()}
             </span>
           )}
-          <button className="refresh-btn" onClick={fetchUpdates} disabled={loading}>
-            {loading ? 'Refreshing...' : 'Refresh'}
+          <button className="refresh-btn" onClick={loadCheckers} disabled={refreshing}>
+            {refreshing ? 'Refreshing...' : 'Refresh'}
           </button>
         </div>
       </header>
 
       <main className="app-main">
-        {loading && checkers.length === 0 && (
+        {loadingList && checkers.length === 0 && !error && (
           <div className="status-message">Loading...</div>
         )}
 
@@ -116,7 +131,7 @@ export default function App() {
             </div>
             <div className="card-grid">
               {EXAMPLE_CHECKERS.map((c) => (
-                <UpdateCard key={c.type} checker={c} />
+                <UpdateCard key={c.type} type={c.type} checker={c} />
               ))}
             </div>
           </>
@@ -125,7 +140,7 @@ export default function App() {
         {!error && checkers.length > 0 && (
           <div className="card-grid">
             {checkers.map((c) => (
-              <UpdateCard key={c.type} checker={c} />
+              <UpdateCard key={c.type} type={c.type} checker={c.status} />
             ))}
           </div>
         )}

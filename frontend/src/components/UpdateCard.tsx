@@ -2,14 +2,28 @@ import type { CheckerStatus } from '../types'
 import './UpdateCard.css'
 
 interface Props {
-  checker: CheckerStatus
+  type: string
+  checker: CheckerStatus | null
 }
 
-export function UpdateCard({ checker }: Props) {
+export function UpdateCard({ type, checker }: Props) {
+  if (!checker) {
+    return (
+      <div className="update-card card-loading">
+        <div className="card-header">
+          <h2 className="card-title">{type}</h2>
+          <span className="skeleton skeleton-badge" />
+        </div>
+        <div className="skeleton skeleton-line" />
+        <div className="skeleton skeleton-line skeleton-line-short" />
+      </div>
+    )
+  }
+
   return (
     <div className={`update-card ${checker.error ? 'card-error' : checker.update_available ? 'card-updates' : 'card-ok'}`}>
       <div className="card-header">
-        <h2 className="card-title">{checker.type}</h2>
+        <h2 className="card-title">{type}</h2>
         <span className={`badge ${checker.error ? 'badge-error' : checker.update_available ? 'badge-updates' : 'badge-ok'}`}>
           {checker.error ? 'Error' : checker.update_available ? `${checker.updates.length} update${checker.updates.length !== 1 ? 's' : ''}` : 'Up to date'}
         </span>
