@@ -1,7 +1,7 @@
 from truenas_api_client import Client
 from websocket import WebSocketAddressException
 
-from ..interface import CheckerConnectionError, CheckResult, UpdateItem
+from ..interface import CheckerConnectionError, CheckerError, CheckResult, UpdateItem
 from ..loader import register_checker
 from .base import TrueNASCheckerBase
 
@@ -16,29 +16,26 @@ class TrueNASChecker(TrueNASCheckerBase):
         try:
             with Client(uri=self.uri, verify_ssl=self.verify_ssl) as c:
                 self._login(c)
-                boot_envs = c.call("boot.environment.query")
+                update_status = c.call("update.status")
+                current_version = c.call("system.version_short")
         except WebSocketAddressException as e:
             raise CheckerConnectionError(f"Invalid address: {self.uri}") from e
 
-        def parse_version(env):
-            try:
-                return tuple(int(x) for x in env["id"].split("."))
-            except ValueError:
-                return (0,)
+        return_code = update_status["code"]
+        if return_code != "NORMAL":
+            error_name = update_status["error"]["errname"]
+            error_reason = update_status["error"]["reason"]
+            raise CheckerError(f"Got API error: {error_name}: {error_reason}")
 
-        current = next(env for env in boot_envs if env["active"])
-        current_version = parse_version(current)
-
-        newer = [env for env in boot_envs if parse_version(env) > current_version]
-
-        if newer:
-            latest = max(newer, key=parse_version)
+        new_version = update_status["status"]["new_version"]
+        if new_version is not None:
+            version_identifier = new_version["version"]
             return CheckResult(
                 updates=[
                     UpdateItem(
                         name="TrueNAS",
-                        current_version=current["id"],
-                        new_version=latest["id"],
+                        current_version=current_version,
+                        new_version=version_identifier,
                     )
                 ]
             )
