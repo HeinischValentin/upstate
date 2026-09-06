@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from upstate.interface import ConfigurationError, CheckerError
+from upstate.interface import CheckerError, ConfigurationError
 from upstate.truenas.apps import TrueNASAppsChecker
 from upstate.truenas.system import TrueNASChecker
 
@@ -99,13 +99,11 @@ class TrueNASSystemCheckerTests(unittest.TestCase):
                 "code": "NORMAL",
                 "status": {
                     "current_version": {},
-                    "new_version": {
-                        "version": "2.0.0"
-                    },
+                    "new_version": {"version": "2.0.0"},
                 },
-                "error": None
+                "error": None,
             },
-            "1.0.0"
+            "1.0.0",
         ]
 
         checker = TrueNASChecker()
@@ -124,9 +122,9 @@ class TrueNASSystemCheckerTests(unittest.TestCase):
                     "current_version": {},
                     "new_version": None,
                 },
-                "error": None
+                "error": None,
             },
-            "1.0.0"
+            "1.0.0",
         ]
 
         checker = TrueNASChecker()
@@ -142,12 +140,9 @@ class TrueNASSystemCheckerTests(unittest.TestCase):
             {
                 "code": "ERROR",
                 "status": None,
-                "error": {
-                    "errname": "SomeError",
-                    "reason": "Something went wrong."
-                }
+                "error": {"errname": "SomeError", "reason": "Something went wrong."},
             },
-            "1.0.0"
+            "1.0.0",
         ]
 
         checker = TrueNASChecker()
@@ -167,13 +162,11 @@ class TrueNASSystemCheckerTests(unittest.TestCase):
                 "code": "NORMAL",
                 "status": {
                     "current_version": {},
-                    "new_version": {
-                        "version": "2.0.0"
-                    },
+                    "new_version": {"version": "2.0.0"},
                 },
-                "error": None
+                "error": None,
             },
-            "1.0.0"
+            "1.0.0",
         ]
 
         checker = TrueNASChecker()

@@ -1,6 +1,6 @@
 import os
-import unittest.mock
 import unittest
+import unittest.mock
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
