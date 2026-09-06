@@ -1,3 +1,5 @@
+import os
+import unittest.mock
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -33,6 +35,7 @@ checkers:
         self.assertEqual(checkers[0].uri, "wss://nas.local/api/current")
         self.assertEqual(checkers[1].uri, "wss://apps.local/api/current")
 
+    @unittest.mock.patch.dict(os.environ, {}, clear=True)
     def test_resolves_environment_variables_for_app_checker(self) -> None:
         config = """
 checkers:
