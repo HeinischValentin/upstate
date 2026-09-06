@@ -18,7 +18,7 @@ It supports various technologies and offers lightweight configuration.
 
 ## Currently supported systems
 
-- `truenas`: checks for pending TrueNAS system updates.
+- `truenas`: checks for pending TrueNAS system updates. Requires TrueNAS 25.10 or later.
 - `truenas-apps`: checks installed TrueNAS apps for available upgrades.
 - `homeassistant`: checks Home Assistant core/system update entities.
 - `docker`: checks whether running containers are using the latest image from the registry.
