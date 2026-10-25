@@ -31,7 +31,7 @@ class TrueNASAppsCheckerTests(unittest.TestCase):
                     "id": "immich",
                     "version": "1.0.0",
                     "latest_version": "1.1.0",
-                    "metadata": {"app_version": "2024.1.0"},
+                    "metadata": {"version": "1.0.0", "app_version": "2024.1.0"},
                     "latest_app_version": "2024.2.0",
                 }
             ],
@@ -50,6 +50,31 @@ class TrueNASAppsCheckerTests(unittest.TestCase):
         client.call.assert_any_call("auth.login_with_api_key", "secret")
         client.call.assert_any_call("app.query", [["upgrade_available", "=", True]])
         self.assertIn("App updates available: immich", "\n".join(logs.output))
+        self.assertEqual(result.updates[0].current_version, "1.0.0 (2024.1.0)")
+        self.assertEqual(result.updates[0].new_version, "1.1.0 (2024.2.0)")
+
+    @patch("upstate.truenas.apps.Client")
+    def test_omits_app_version_when_unavailable(self, client_cls: MagicMock) -> None:
+        client = client_cls.return_value.__enter__.return_value
+        client.call.side_effect = [
+            True,
+            [
+                {
+                    "id": "custom",
+                    "latest_version": "1.1.0",
+                    "metadata": {"version": "1.0.0"},
+                    "latest_app_version": None,
+                }
+            ],
+        ]
+
+        checker = TrueNASAppsChecker()
+        checker.configure({"host": "nas.local", "api_key": "secret"})
+
+        result = checker.check_for_update()
+
+        self.assertEqual(result.updates[0].current_version, "1.0.0")
+        self.assertEqual(result.updates[0].new_version, "1.1.0")
 
     @patch("upstate.truenas.apps.Client")
     def test_reports_no_updates_when_none_available(
