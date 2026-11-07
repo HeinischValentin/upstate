@@ -1,3 +1,5 @@
 # Credentials
 .env
+# Temporary files
+temp
 
