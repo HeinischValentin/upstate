@@ -34,18 +34,21 @@ class TrueNASAppsChecker(TrueNASCheckerBase):
         name = str(app.get("id") or app.get("name") or "unknown")
 
         metadata = app.get("metadata") or {}
-        current = str(metadata.get("version") or "error")
-        new = str(app.get("latest_version") or "error")
+        current_chart_version = str(metadata.get("version") or "error")
+        new_chart_version = str(app.get("latest_version") or "error")
 
-        if "error" in (current, new):
+        if "error" in (current_chart_version, new_chart_version):
             self.logger.info("Couldn't read version for %s", name)
+
+        current_app_version = metadata.get("app_version")
+        new_app_version = self._get_latest_app_version(client, name, new_chart_version)
 
         return UpdateItem(
             name=name,
-            current_version=self._format_version(current, metadata.get("app_version")),
-            new_version=self._format_version(
-                new, self._get_latest_app_version(client, name, new)
+            current_version=self._format_version(
+                current_chart_version, current_app_version
             ),
+            new_version=self._format_version(new_chart_version, new_app_version),
         )
 
     def _get_latest_app_version(
