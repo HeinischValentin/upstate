@@ -1,6 +1,8 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
+from truenas_api_client import ClientException
+
 from upstate.interface import CheckerError, ConfigurationError
 from upstate.truenas.apps import TrueNASAppsChecker
 from upstate.truenas.system import TrueNASChecker
@@ -32,9 +34,9 @@ class TrueNASAppsCheckerTests(unittest.TestCase):
                     "version": "1.0.0",
                     "latest_version": "1.1.0",
                     "metadata": {"version": "1.0.0", "app_version": "2024.1.0"},
-                    "latest_app_version": "2024.2.0",
                 }
             ],
+            {"latest_version": "1.1.0", "latest_human_version": "2024.2.0_1.1.0"},
         ]
 
         checker = TrueNASAppsChecker()
@@ -49,6 +51,7 @@ class TrueNASAppsCheckerTests(unittest.TestCase):
         )
         client.call.assert_any_call("auth.login_with_api_key", "secret")
         client.call.assert_any_call("app.query", [["upgrade_available", "=", True]])
+        client.call.assert_any_call("app.upgrade_summary", "immich")
         self.assertIn("App updates available: immich", "\n".join(logs.output))
         self.assertEqual(result.updates[0].current_version, "1.0.0 (2024.1.0)")
         self.assertEqual(result.updates[0].new_version, "1.1.0 (2024.2.0)")
@@ -63,9 +66,9 @@ class TrueNASAppsCheckerTests(unittest.TestCase):
                     "id": "custom",
                     "latest_version": "1.1.0",
                     "metadata": {"version": "1.0.0"},
-                    "latest_app_version": None,
                 }
             ],
+            {"latest_version": "1.1.0", "latest_human_version": "1.1.0"},
         ]
 
         checker = TrueNASAppsChecker()
@@ -74,6 +77,31 @@ class TrueNASAppsCheckerTests(unittest.TestCase):
         result = checker.check_for_update()
 
         self.assertEqual(result.updates[0].current_version, "1.0.0")
+        self.assertEqual(result.updates[0].new_version, "1.1.0")
+
+    @patch("upstate.truenas.apps.Client")
+    def test_omits_new_app_version_when_upgrade_summary_fails(
+        self, client_cls: MagicMock
+    ) -> None:
+        client = client_cls.return_value.__enter__.return_value
+        client.call.side_effect = [
+            True,
+            [
+                {
+                    "id": "immich",
+                    "latest_version": "1.1.0",
+                    "metadata": {"version": "1.0.0", "app_version": "2024.1.0"},
+                }
+            ],
+            ClientException("No upgrade available"),
+        ]
+
+        checker = TrueNASAppsChecker()
+        checker.configure({"host": "nas.local", "api_key": "secret"})
+
+        result = checker.check_for_update()
+
+        self.assertEqual(result.updates[0].current_version, "1.0.0 (2024.1.0)")
         self.assertEqual(result.updates[0].new_version, "1.1.0")
 
     @patch("upstate.truenas.apps.Client")
